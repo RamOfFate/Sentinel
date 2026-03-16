@@ -13,7 +13,7 @@ import { SidebarTrigger } from "./ui/sidebar";
 
 export default function Header() {
   return (
-    <div className="border-b border-borde w-full p-2 px-4 flex items-center justify-between sticky top-0 bg-background">
+    <div className="border-b border-primary/20 w-full p-2 px-4 flex items-center justify-between sticky top-0 bg-background">
       <div className="flex items-center gap-2">
         <SidebarTrigger />
         <DynamicBreadcrumb />
@@ -36,6 +36,7 @@ export default function Header() {
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
+          //TODO: implement sign out
           <DropdownMenuItem>
             <LogOutIcon />
             Sign Out

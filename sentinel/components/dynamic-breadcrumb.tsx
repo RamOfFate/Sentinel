@@ -8,6 +8,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import Link from "next/link";
+import React from "react";
 
 export function DynamicBreadcrumb() {
   const pathname = usePathname();
@@ -17,22 +19,26 @@ export function DynamicBreadcrumb() {
     <Breadcrumb>
       <BreadcrumbList>
         <BreadcrumbItem>
-          <BreadcrumbLink href="/">Dashboard</BreadcrumbLink>
+          <BreadcrumbLink render={<Link href={"/"} />}>
+            Dashboard
+          </BreadcrumbLink>
         </BreadcrumbItem>
         {segments.map((segment, i) => {
           const href = "/" + segments.slice(0, i + 1).join("/");
           const isLast = i === segments.length - 1;
           return (
-            <span key={href} className="flex items-center gap-1.5">
+            <React.Fragment key={href}>
               <BreadcrumbSeparator />
-              <BreadcrumbItem>
+              <BreadcrumbItem className="flex items-center gap-1.5">
                 {isLast ? (
                   <BreadcrumbPage>{segment}</BreadcrumbPage>
                 ) : (
-                  <BreadcrumbLink href={href}>{segment}</BreadcrumbLink>
+                  <BreadcrumbLink render={<Link href={href} />}>
+                    {segment}
+                  </BreadcrumbLink>
                 )}
               </BreadcrumbItem>
-            </span>
+            </React.Fragment>
           );
         })}
       </BreadcrumbList>

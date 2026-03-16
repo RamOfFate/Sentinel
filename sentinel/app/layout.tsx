@@ -17,6 +17,7 @@ import { LayoutDashboard, Paperclip, SquareUser } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ThemeProvider } from "@/components/theme-provider";
 import Link from "next/link";
+import { cookies } from "next/headers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,18 +34,21 @@ export const metadata: Metadata = {
   description: "A comprehensive, dossier-style PRM",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const savedState = cookieStore.get("sidebar_state")?.value;
+  const defaultOpen = savedState === "true";
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased `}
       >
         <ThemeProvider>
-          <SidebarProvider defaultOpen={false}>
+          <SidebarProvider defaultOpen={defaultOpen}>
             <Sidebar collapsible="icon">
               <SidebarHeader className="flex flex-row items-center px-4 py-4 text-sm text-primary">
                 <Paperclip className="shrink-0" size={16} />
@@ -56,18 +60,20 @@ export default function RootLayout({
                 <SidebarGroup>
                   <SidebarMenu>
                     <SidebarMenuItem>
-                      <Link href="/">
-                        <SidebarMenuButton className="cursor-pointer">
-                          <LayoutDashboard /> Dashboard
-                        </SidebarMenuButton>
-                      </Link>
+                      <SidebarMenuButton
+                        className="cursor-pointer"
+                        render={<Link href={"/"} />}
+                      >
+                        <LayoutDashboard /> Dashboard
+                      </SidebarMenuButton>
                     </SidebarMenuItem>
                     <SidebarMenuItem>
-                      <Link href="/contacts">
-                        <SidebarMenuButton className="cursor-pointer">
-                          <SquareUser /> Contacts
-                        </SidebarMenuButton>
-                      </Link>
+                      <SidebarMenuButton
+                        className="cursor-pointer"
+                        render={<Link href={"/contacts"} />}
+                      >
+                        <SquareUser /> Contacts
+                      </SidebarMenuButton>
                     </SidebarMenuItem>
                   </SidebarMenu>
                 </SidebarGroup>
