@@ -16,8 +16,8 @@ export function DynamicBreadcrumb() {
   const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
 
-  const MAX_VISIBLE_ITEMS = 3;
-  const shouldCollapse = segments.length > MAX_VISIBLE_ITEMS;
+  // We collapse if there are more than 3 segments (so 4+ total including Dashboard)
+  const shouldCollapse = segments.length > 3;
 
   return (
     <Breadcrumb>
@@ -34,6 +34,20 @@ export function DynamicBreadcrumb() {
             <BreadcrumbItem>
               <BreadcrumbEllipsis />
             </BreadcrumbItem>
+
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink
+                render={
+                  <Link
+                    href={`/${segments.slice(0, segments.length - 1).join("/")}`}
+                  />
+                }
+              >
+                {segments[segments.length - 2]}
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbPage className="text-primary">

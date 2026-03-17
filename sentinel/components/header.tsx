@@ -65,8 +65,8 @@ export default function Header() {
           </DropdownMenuContent>
         </DropdownMenu>
       ) : status === "unauthenticated" ? (
-        <Button variant="default" size="sm">
-          <Link href="/login">Sign In</Link>
+        <Button variant="default" size="sm" render={<Link href="/login" />}>
+          Sign In
         </Button>
       ) : (
         <Skeleton className="rounded-full h-8 w-8" />

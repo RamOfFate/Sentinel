@@ -27,12 +27,9 @@ export async function POST(req: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    const salt = crypto.randomUUID();
-
     const newUser = await User.create({
       email,
       password: hashedPassword,
-      salt,
     });
 
     return NextResponse.json({ message: "Agent Registered" }, { status: 201 });
