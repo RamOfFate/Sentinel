@@ -88,7 +88,7 @@ export default function SettingsForm() {
               <Input
                 id="name"
                 type="text"
-                placeholder="Enter new codename..."
+                placeholder="Enter new name..."
                 value={newName}
                 disabled={loading}
                 onChange={(e) => setNewName(e.target.value)}

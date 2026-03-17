@@ -65,7 +65,12 @@ export default function Header() {
           </DropdownMenuContent>
         </DropdownMenu>
       ) : status === "unauthenticated" ? (
-        <Button variant="default" size="sm" render={<Link href="/login" />}>
+        <Button
+          variant="default"
+          size="sm"
+          render={<Link href="/login" />}
+          nativeButton={false}
+        >
           Sign In
         </Button>
       ) : (
