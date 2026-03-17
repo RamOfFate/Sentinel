@@ -20,13 +20,13 @@ export const authOptions: NextAuthOptions = {
         await dbConnect();
 
         const user = await User.findOne({ email: credentials.email });
-        if (!user) throw new Error("No user found");
+        if (!user) throw new Error("Invalid credentials");
 
         const isValid = await bcrypt.compare(
           credentials.password,
           user.password,
         );
-        if (!isValid) throw new Error("Invalid password");
+        if (!isValid) throw new Error("Invalid credentials");
 
         return {
           id: user._id.toString(),

@@ -2,10 +2,19 @@ import dbConnect from "@/lib/mongodb";
 import User from "@/models/user";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
+import { authSchema } from "@/lib/validations/auth";
 
 export async function POST(req: Request) {
   try {
-    const { email, password } = await req.json();
+    const body = await req.json();
+    const validation = authSchema.safeParse(body);
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: validation.error.issues[0].message },
+        { status: 400 },
+      );
+    }
+    const { email, password } = validation.data;
     await dbConnect();
 
     const existingUser = await User.findOne({ email });

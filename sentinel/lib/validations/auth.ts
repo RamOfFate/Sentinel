@@ -2,7 +2,13 @@ import { z } from "zod";
 
 export const authSchema = z.object({
   email: z.string().email("Invalid Email"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .refine(
+      (value) => new TextEncoder().encode(value).length <= 72,
+      "Password must be 72 bytes or fewer",
+    ),
 });
 
 export const nameSchema = z.object({

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import {
   Card,
   CardHeader,
@@ -22,7 +22,7 @@ export default function RegisterForm() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
@@ -47,7 +47,7 @@ export default function RegisterForm() {
         setError(data.error || "Registration failed");
       }
     } catch (err) {
-      setError("CONENCTION_LOST: Server unreachable");
+      setError("CONNECTION_LOST: Server unreachable");
     } finally {
       setLoading(false);
     }
@@ -69,7 +69,7 @@ export default function RegisterForm() {
         <form onSubmit={handleSubmit}>
           <FieldGroup>
             <Field>
-              <FieldLabel>Email</FieldLabel>
+              <FieldLabel htmlFor="email">Email</FieldLabel>
               <Input
                 id="email"
                 type="email"
@@ -80,7 +80,7 @@ export default function RegisterForm() {
               />
             </Field>
             <Field>
-              <FieldLabel>Password</FieldLabel>
+              <FieldLabel htmlFor="password">Password</FieldLabel>
               <Input
                 type="password"
                 id="password"

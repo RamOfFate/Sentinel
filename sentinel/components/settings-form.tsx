@@ -12,7 +12,7 @@ import {
 } from "./ui/card";
 import { Field, FieldGroup, FieldLabel } from "./ui/field";
 import { Input } from "./ui/input";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { nameSchema } from "@/lib/validations/auth";
 
@@ -23,7 +23,7 @@ export default function SettingsForm() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleUpdateName = async (e: React.FormEvent) => {
+  const handleUpdateName = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
@@ -78,10 +78,13 @@ export default function SettingsForm() {
         <form onSubmit={handleUpdateName} className="px-2 pb-4">
           <FieldGroup>
             <Field>
-              <FieldLabel>
-                Current Alias:
-                <span className="text-primary">{data?.user?.name}</span>
-              </FieldLabel>
+              <div className="flex justify-between">
+                <FieldLabel htmlFor="name">New Alias</FieldLabel>
+                <p id="current-alias" className="text-sm text-muted-foreground">
+                  Current Alias:{" "}
+                  <span className="text-primary">{data?.user?.name}</span>
+                </p>
+              </div>
               <Input
                 id="name"
                 type="text"
@@ -94,14 +97,14 @@ export default function SettingsForm() {
             <Field>
               <div className="flex justify-end w-full">
                 <Button type="submit" disabled={loading || !newName}>
-                  {loading ? "UPDATING..." : "Save Changes"}
+                  {loading ? "Loading..." : "Save Changes"}
                 </Button>
               </div>
             </Field>
           </FieldGroup>
         </form>
       </CardContent>
-      <CardFooter className="border-t border-red-900/30 mt-4 pt-6">
+      <CardFooter className="border-t">
         <div className="flex justify-end w-full px-2">
           <Button
             variant={"destructive"}

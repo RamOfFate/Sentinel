@@ -2,7 +2,7 @@
 
 import { Cog, Github, LogOutIcon, User, User2, User2Icon } from "lucide-react";
 import { DynamicBreadcrumb } from "./dynamic-breadcrumb";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Avatar, AvatarImage } from "./ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,7 +28,7 @@ export default function Header() {
       </div>
       {status === "authenticated" ? (
         <DropdownMenu>
-          <DropdownMenuTrigger className="rounded-full flex items-center justify-center w-8 h-8 hover:bg-accent">
+          <DropdownMenuTrigger className="rounded-full flex items-center justify-center w-8 h-8 hover:bg-accent cursor-pointer">
             <Avatar>
               <AvatarImage
                 src="https://github.com/ramoffate.png"
@@ -38,7 +38,7 @@ export default function Header() {
           </DropdownMenuTrigger>
           <DropdownMenuContent className={"select-none"}>
             <DropdownMenuGroup>
-              <DropdownMenuLabel className={"text-primary"}>
+              <DropdownMenuLabel className={"text-primary truncate"}>
                 {data?.user?.name || "username"}
               </DropdownMenuLabel>
               <DropdownMenuSeparator />

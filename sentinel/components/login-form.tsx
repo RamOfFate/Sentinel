@@ -50,7 +50,7 @@ export function LoginForm() {
         router.refresh();
       }
     } catch (err) {
-      setError("CONENCTION_LOST: Server unreachable");
+      setError("CONNECTION_LOST: Server unreachable");
     } finally {
       setLoading(false);
     }
@@ -87,7 +87,7 @@ export function LoginForm() {
               <div className="flex justify-between">
                 <FieldLabel>Password</FieldLabel>
                 <Link
-                  href="forgot-password"
+                  href="/forgot-password"
                   className="hover:underline underline-offset-4"
                 >
                   Forgot your password?
@@ -107,7 +107,8 @@ export function LoginForm() {
                 {loading ? "Loading..." : "Login"}
               </Button>
               <FieldDescription className="text-center">
-                Don&apos;t have an account? <Link href="register">Sign up</Link>
+                Don&apos;t have an account?{" "}
+                <Link href="/register">Sign up</Link>
               </FieldDescription>
             </Field>
           </FieldGroup>
