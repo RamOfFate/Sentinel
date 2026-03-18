@@ -18,12 +18,12 @@ export async function derivedMasterKey(
     {
       name: "PBKDF2",
       salt: saltBuffer,
-      iterations: 100000,
+      iterations: 600000,
       hash: "SHA-256",
     },
     baseKey,
     { name: "AES-GCM", length: 256 },
-    true,
+    true, // I'm exposing it for memeory management later
     ["encrypt", "decrypt"],
   );
 }

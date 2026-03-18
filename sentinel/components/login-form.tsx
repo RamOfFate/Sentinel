@@ -61,8 +61,6 @@ export function LoginForm() {
 
         const masterKey = await derivedMasterKey(password, salt);
 
-        console.log("[v] MASTER_KEY_GENERATED:", masterKey);
-
         router.push("/");
         router.refresh();
       } catch (cryptoErr) {
