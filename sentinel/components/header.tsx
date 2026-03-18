@@ -38,18 +38,19 @@ export default function Header() {
         <SidebarTrigger />
         <DynamicBreadcrumb />
       </div>
-      <div className="flex gap-4 items-center">
-        {isLocked ? (
-          <Badge variant={"destructive"} className="py-3">
-            <ShieldAlert size={14} /> Data Locked
-          </Badge>
-        ) : (
-          <Badge variant={"default"} className="py-3">
-            <ShieldCheck size={14} />
-            Data Unlocked
-          </Badge>
-        )}
-        {status === "authenticated" ? (
+      {status === "authenticated" ? (
+        <div className="flex gap-4 items-center">
+          {isLocked ? (
+            <Badge variant={"outline"} className="py-3 border-destructive">
+              <ShieldAlert size={14} /> Data Locked
+            </Badge>
+          ) : (
+            <Badge variant={"outline"} className="py-3 border-primary">
+              <ShieldCheck size={14} />
+              Data Unlocked
+            </Badge>
+          )}
+
           <DropdownMenu>
             <DropdownMenuTrigger className="rounded-full flex items-center justify-center w-8 h-8 hover:bg-accent cursor-pointer">
               <Avatar>
@@ -87,19 +88,19 @@ export default function Header() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        ) : status === "unauthenticated" ? (
-          <Button
-            variant="default"
-            size="sm"
-            render={<Link href="/login" />}
-            nativeButton={false}
-          >
-            Sign In
-          </Button>
-        ) : (
-          <Skeleton className="rounded-full h-8 w-8" />
-        )}
-      </div>
+        </div>
+      ) : status === "unauthenticated" ? (
+        <Button
+          variant="default"
+          size="sm"
+          render={<Link href="/login" />}
+          nativeButton={false}
+        >
+          Sign In
+        </Button>
+      ) : (
+        <Skeleton className="rounded-full h-8 w-8" />
+      )}
     </div>
   );
 }

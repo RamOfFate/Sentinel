@@ -103,7 +103,7 @@ export default function LockPage() {
                   Unlocking...
                 </>
               ) : (
-                "Unlock Vault"
+                "Unlock Data"
               )}
             </Button>
           </form>
