@@ -6,8 +6,9 @@ import { authOptions } from "../../auth/[...nextauth]/route";
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.user?.id)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -16,7 +17,7 @@ export async function GET(
     await dbConnect();
 
     const record = await Record.findOne({
-      _id: params.id,
+      _id: id,
       userId: session.user.id,
     }).lean();
 
@@ -30,6 +31,8 @@ export async function GET(
   }
 }
 
+const ENCRYPTED_PAYLOAD_REGEX = /^[A-Za-z0-9+/=]+\.[A-Za-z0-9+/=]+$/;
+
 export async function PUT(
   req: Request,
   { params }: { params: { id: string } },
@@ -41,6 +44,59 @@ export async function PUT(
   try {
     await dbConnect();
     const body = await req.json();
+
+    const { tags, attributes, links } = body;
+
+    if (
+      (tags !== undefined &&
+        (!Array.isArray(tags) ||
+          tags.some((tag: unknown) => typeof tag !== "string"))) ||
+      (links !== undefined &&
+        (!Array.isArray(links) ||
+          links.some(
+            (link: any) =>
+              !link ||
+              typeof link !== "object" ||
+              typeof link.relationship !== "string" ||
+              typeof link.targetId !== "string",
+          )))
+    ) {
+      return NextResponse.json(
+        { error: "Invalid request payload" },
+        { status: 400 },
+      );
+    }
+
+    if (
+      attributes !== undefined &&
+      (!Array.isArray(attributes) ||
+        attributes.some(
+          (attr: any) =>
+            typeof attr?.label !== "string" || !Array.isArray(attr?.values),
+        ))
+    ) {
+      return NextResponse.json(
+        { error: "Invalid request payload" },
+        { status: 400 },
+      );
+    }
+
+    if (attributes) {
+      const isPayloadSecure = attributes.every((attr: any) => {
+        const labelIsEncrypted = ENCRYPTED_PAYLOAD_REGEX.test(attr.label);
+        const valuesAreEncrypted = attr.values.every((val: string) =>
+          ENCRYPTED_PAYLOAD_REGEX.test(val),
+        );
+        return labelIsEncrypted && valuesAreEncrypted;
+      });
+
+      if (!isPayloadSecure) {
+        return NextResponse.json(
+          { error: "Insecure payload format" },
+          { status: 400 },
+        );
+      }
+    }
 
     const updatedRecord = await Record.findOneAndUpdate(
       { _id: params.id, userId: session.user.id },
