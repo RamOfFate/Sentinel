@@ -68,6 +68,26 @@ export async function POST(req: Request) {
     const { tags, attributes, links } = await req.json();
 
     if (
+      (tags !== undefined &&
+        (!Array.isArray(tags) ||
+          tags.some((tag: unknown) => typeof tag !== "string"))) ||
+      (links !== undefined &&
+        (!Array.isArray(links) ||
+          links.some(
+            (link: any) =>
+              !link ||
+              typeof link !== "object" ||
+              typeof link.relationship !== "string" ||
+              typeof link.targetId !== "string",
+          )))
+    ) {
+      return NextResponse.json(
+        { error: "Invalid request payload" },
+        { status: 400 },
+      );
+    }
+
+    if (
       !Array.isArray(attributes) ||
       attributes.some(
         (attr: any) =>
@@ -105,7 +125,11 @@ export async function POST(req: Request) {
 
     return NextResponse.json(newRecord, { status: 201 });
   } catch (error) {
-    console.error("POST_RECORD_ERROR", error);
+    const err = error as Error;
+    console.error("POST_RECORD_ERROR", {
+      name: err.name,
+      message: err.message,
+    });
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 },
