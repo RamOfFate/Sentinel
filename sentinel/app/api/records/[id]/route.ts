@@ -98,14 +98,16 @@ export async function PUT(
       }
     }
 
+    const updateFields: Record<string, unknown> = {
+      lastModified: new Date(),
+    };
+    if (tags !== undefined) updateFields.tags = tags;
+    if (attributes !== undefined) updateFields.attributes = attributes;
+    if (links !== undefined) updateFields.links = links;
+
     const updatedRecord = await Record.findOneAndUpdate(
-      { _id: params.id, userId: session.user.id },
-      {
-        tags: body.tags,
-        attributes: body.attributes,
-        links: body.links,
-        lastModified: new Date(),
-      },
+      { _id: id, userId: session.user.id },
+      { $set: updateFields },
       { new: true, runValidators: true },
     );
 
