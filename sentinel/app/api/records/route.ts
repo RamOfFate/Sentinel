@@ -5,6 +5,9 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
 
 const ENCRYPTED_PAYLOAD_REGEX = /^[A-Za-z0-9+/=]+:[A-Za-z0-9+/=]+$/;
+const logAuditError = (context: string, error: any) => {
+  console.error(`[AUDIT_FAIL] ${context}:`, error?.message || "Unknown Error");
+};
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -33,7 +36,8 @@ export async function GET(req: NextRequest) {
       pagination: { total, skip, limit, hasNext: total > skip + limit },
     });
   } catch (error) {
-    return NextResponse.json({ error: "Fetch failed" }, { status: 500 });
+    logAuditError("GET_RECORDS", error);
+    return NextResponse.json({ error: "Request failed" }, { status: 500 });
   }
 }
 
@@ -53,10 +57,7 @@ export async function POST(req: NextRequest) {
           typeof attr?.label !== "string" || !Array.isArray(attr?.values),
       )
     ) {
-      return NextResponse.json(
-        { error: "Invalid attributes structure" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Invalid structure" }, { status: 400 });
     }
 
     const isPayloadSecure = attributes.every((attr: any) => {
@@ -68,13 +69,9 @@ export async function POST(req: NextRequest) {
     });
 
     if (!isPayloadSecure) {
-      return NextResponse.json(
-        { error: "Insecure payload format" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Insecure payload" }, { status: 400 });
     }
 
-    // 3. Forced Identity (Security Check)
     const newRecord = await Record.create({
       userId: session.user.id,
       tags: tags || [],
@@ -83,12 +80,9 @@ export async function POST(req: NextRequest) {
       lastModified: new Date(),
     });
 
-    return NextResponse.json(newRecord, { status: 201 });
+    return NextResponse.json({ id: newRecord._id }, { status: 201 });
   } catch (error) {
-    console.error("POST_ERROR", error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 },
-    );
+    logAuditError("POST_RECORD", error);
+    return NextResponse.json({ error: "Operation failed" }, { status: 500 });
   }
 }
