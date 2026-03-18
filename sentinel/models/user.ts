@@ -20,8 +20,8 @@ const UserSchema = new mongoose.Schema(
 );
 
 // uncomment when user changes
-if (mongoose.models.User) {
-  delete (mongoose.models as any).User;
-}
+// if (mongoose.models.User) {
+//   delete (mongoose.models as any).User;
+// }
 
 export default mongoose.models.User || mongoose.model("User", UserSchema);
