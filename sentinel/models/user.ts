@@ -1,7 +1,6 @@
-import mongoose from "mongoose";
-import { lowercase } from "zod";
+import { Schema, model, models } from "mongoose";
 
-const UserSchema = new mongoose.Schema(
+const UserSchema = new Schema(
   {
     email: {
       type: String,
@@ -24,4 +23,4 @@ const UserSchema = new mongoose.Schema(
 //   delete (mongoose.models as any).User;
 // }
 
-export default mongoose.models.User || mongoose.model("User", UserSchema);
+export default models.User || model("User", UserSchema);

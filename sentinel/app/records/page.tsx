@@ -1,9 +1,9 @@
 import { VaultGuard } from "@/components/auth/vault-gaurd";
 
-export default function Contacts() {
+export default function Records() {
   return (
     <VaultGuard>
-      <p>Contacts</p>
+      <p>Records</p>
     </VaultGuard>
   );
 }
