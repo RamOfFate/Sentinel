@@ -34,6 +34,7 @@ export const authOptions: NextAuthOptions = {
           id: user._id.toString(),
           email: user.email,
           name: user.name,
+          salt: user.salt,
         };
       },
     }),
@@ -41,7 +42,8 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user, trigger, session }) {
       if (user) {
-        token.name = (user as any).name;
+        token.name = user.name;
+        token.salt = user.salt;
       }
 
       if (trigger === "update" && session?.name) {
@@ -53,6 +55,7 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (session.user) {
         session.user.name = token.name as string;
+        session.user.salt = token.salt as string;
       }
       return session;
     },
