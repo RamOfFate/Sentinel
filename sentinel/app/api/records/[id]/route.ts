@@ -1,82 +1,59 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Record from "@/models/record";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/route";
 
-export async function GET(
-  req: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+const ENCRYPTED_PAYLOAD_REGEX = /^[A-Za-z0-9+/=]+:[A-Za-z0-9+/=]+$/;
+
+type RouteContext = {
+  params: Promise<{ id: string }>;
+};
+
+export async function GET(req: NextRequest, { params }: RouteContext) {
   const { id } = await params;
   const session = await getServerSession(authOptions);
+
   if (!session?.user?.id)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
     await dbConnect();
-
     const record = await Record.findOne({
       _id: id,
       userId: session.user.id,
     }).lean();
 
-    if (!record) {
+    if (!record)
       return NextResponse.json({ error: "Record not found" }, { status: 404 });
-    }
-
     return NextResponse.json(record);
   } catch (error) {
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
 
-const ENCRYPTED_PAYLOAD_REGEX = /^[A-Za-z0-9+/=]+\.[A-Za-z0-9+/=]+$/;
-
-export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } },
-) {
+export async function PUT(req: NextRequest, { params }: RouteContext) {
+  const { id } = await params; // Fix: Await params
   const session = await getServerSession(authOptions);
+
   if (!session?.user?.id)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
     await dbConnect();
     const body = await req.json();
-
     const { tags, attributes, links } = body;
 
     if (
-      (tags !== undefined &&
-        (!Array.isArray(tags) ||
-          tags.some((tag: unknown) => typeof tag !== "string"))) ||
-      (links !== undefined &&
-        (!Array.isArray(links) ||
-          links.some(
-            (link: any) =>
-              !link ||
-              typeof link !== "object" ||
-              typeof link.relationship !== "string" ||
-              typeof link.targetId !== "string",
-          )))
-    ) {
-      return NextResponse.json(
-        { error: "Invalid request payload" },
-        { status: 400 },
-      );
-    }
-
-    if (
-      attributes !== undefined &&
+      attributes &&
       (!Array.isArray(attributes) ||
         attributes.some(
-          (attr: any) =>
+          (attr) =>
             typeof attr?.label !== "string" || !Array.isArray(attr?.values),
         ))
     ) {
       return NextResponse.json(
-        { error: "Invalid request payload" },
+        { error: "Invalid attributes structure" },
         { status: 400 },
       );
     }
@@ -98,9 +75,7 @@ export async function PUT(
       }
     }
 
-    const updateFields: Record<string, unknown> = {
-      lastModified: new Date(),
-    };
+    const updateFields: any = { lastModified: new Date() };
     if (tags !== undefined) updateFields.tags = tags;
     if (attributes !== undefined) updateFields.attributes = attributes;
     if (links !== undefined) updateFields.links = links;
@@ -111,42 +86,27 @@ export async function PUT(
       { new: true, runValidators: true },
     );
 
-    if (!updatedRecord) {
-      return NextResponse.json(
-        { error: "Record not found or unauthorized" },
-        { status: 404 },
-      );
-    }
-
+    if (!updatedRecord)
+      return NextResponse.json({ error: "Record not found" }, { status: 404 });
     return NextResponse.json(updatedRecord);
   } catch (error) {
     return NextResponse.json({ error: "Update failed" }, { status: 500 });
   }
 }
 
-export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } },
-) {
+export async function DELETE(req: NextRequest, { params }: RouteContext) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
+
   if (!session?.user?.id)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
     await dbConnect();
+    const result = await Record.deleteOne({ _id: id, userId: session.user.id });
 
-    const result = await Record.deleteOne({
-      _id: params.id,
-      userId: session.user.id,
-    });
-
-    if (result.deletedCount === 0) {
-      return NextResponse.json(
-        { error: "Record not found or unauthorized" },
-        { status: 404 },
-      );
-    }
-
+    if (result.deletedCount === 0)
+      return NextResponse.json({ error: "Record not found" }, { status: 404 });
     return NextResponse.json({ message: "Dossier permanently erased" });
   } catch (error) {
     return NextResponse.json({ error: "Deletion failed" }, { status: 500 });
