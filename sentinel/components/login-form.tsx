@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import { authSchema } from "@/lib/validations/auth";
 
 import { derivedMasterKey } from "@/lib/crypto";
+import { useSecurity } from "@/context/security-context";
 
 export function LoginForm() {
   const [email, setEmail] = useState("");
@@ -24,6 +25,7 @@ export function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { setMasterKey } = useSecurity();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,6 +61,8 @@ export function LoginForm() {
         }
 
         const masterKey = await derivedMasterKey(password, salt);
+
+        setMasterKey(masterKey);
 
         router.push("/");
         router.refresh();
