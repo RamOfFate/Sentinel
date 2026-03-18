@@ -13,7 +13,12 @@ import {
   SidebarMenuItem,
   SidebarProvider,
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, Paperclip, SquareUser } from "lucide-react";
+import {
+  HatGlasses,
+  LayoutDashboard,
+  Paperclip,
+  SquareUser,
+} from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ThemeProvider } from "@/components/theme-provider";
 import Link from "next/link";
@@ -75,6 +80,14 @@ export default async function RootLayout({
                           render={<Link href={"/contacts"} />}
                         >
                           <SquareUser /> Contacts
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                      <SidebarMenuItem>
+                        <SidebarMenuButton
+                          className="cursor-pointer"
+                          render={<Link href={"/test/encrypt"} />}
+                        >
+                          <HatGlasses /> Encryption
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     </SidebarMenu>
