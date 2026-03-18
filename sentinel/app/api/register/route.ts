@@ -25,11 +25,15 @@ export async function POST(req: Request) {
       );
     }
 
+    const salt = crypto.randomUUID();
+
     const hashedPassword = await bcrypt.hash(password, 12);
 
     const newUser = await User.create({
       email,
       password: hashedPassword,
+      salt: salt,
+      name: email.split("@")[0],
     });
 
     return NextResponse.json({ message: "Agent Registered" }, { status: 201 });

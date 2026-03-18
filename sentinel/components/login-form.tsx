@@ -16,6 +16,8 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { authSchema } from "@/lib/validations/auth";
 
+import { derivedMasterKey } from "@/lib/crypto";
+
 export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,15 +41,33 @@ export function LoginForm() {
       const result = await signIn("credentials", {
         email,
         password,
-        callbackUrl: "/",
         redirect: false,
       });
 
       if (result?.error) {
         setError("Credentials not recognized");
-      } else {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const sessionRes = await fetch("/api/auth/session");
+        const session = await sessionRes.json();
+        const salt = session?.user?.salt;
+
+        if (!salt) {
+          throw new Error("SEC_FAULT: Encryption salt missing");
+        }
+
+        const masterKey = await derivedMasterKey(password, salt);
+
+        console.log("[v] MASTER_KEY_GENERATED:", masterKey);
+
         router.push("/");
         router.refresh();
+      } catch (cryptoErr) {
+        console.error(cryptoErr);
+        setError("CRYPTO_ERROR: Key derivation failed");
       }
     } catch (err) {
       setError("CONNECTION_LOST: Server unreachable");

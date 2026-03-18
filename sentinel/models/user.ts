@@ -13,15 +13,15 @@ const UserSchema = new mongoose.Schema(
     password: { type: String, required: true },
     name: {
       type: String,
-      default: () => `sentinel_user`,
     },
+    salt: { type: String, required: true },
   },
   { timestamps: true },
 );
 
 // uncomment when user changes
-// if (mongoose.models.User) {
-//   delete (mongoose.models as any).User;
-// }
+if (mongoose.models.User) {
+  delete (mongoose.models as any).User;
+}
 
 export default mongoose.models.User || mongoose.model("User", UserSchema);
