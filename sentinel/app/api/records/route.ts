@@ -6,13 +6,25 @@ import { authOptions } from "../auth/[...nextauth]/route";
 
 export async function GET(req: Request) {
   const session = await getServerSession(authOptions);
-  if (!session)
+  if (!session?.user?.id)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
 
-  const limit = parseInt(searchParams.get("limit") || "20");
-  const skip = parseInt(searchParams.get("skip") || "0");
+  const limit = Number(searchParams.get("limit") ?? 20);
+  const skip = Number(searchParams.get("skip") ?? 0);
+  if (
+    !Number.isInteger(limit) ||
+    !Number.isInteger(skip) ||
+    limit < 1 ||
+    limit > 100 ||
+    skip < 0
+  ) {
+    return NextResponse.json(
+      { error: "Invalid pagination params" },
+      { status: 400 },
+    );
+  }
 
   try {
     await dbConnect();
@@ -42,7 +54,7 @@ export async function GET(req: Request) {
   }
 }
 
-const ENCRYPTED_PAYLOAD_REGEX = /^[a-zA-Z0-9/+=]+:[a-zA-Z0-9/+=]+$/;
+const ENCRYPTED_PAYLOAD_REGEX = /^[A-Za-z0-9+/=]+\.[A-Za-z0-9+/=]+$/;
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
@@ -54,6 +66,19 @@ export async function POST(req: Request) {
   try {
     await dbConnect();
     const { tags, attributes, links } = await req.json();
+
+    if (
+      !Array.isArray(attributes) ||
+      attributes.some(
+        (attr: any) =>
+          typeof attr?.label !== "string" || !Array.isArray(attr?.values),
+      )
+    ) {
+      return NextResponse.json(
+        { error: "Invalid request payload" },
+        { status: 400 },
+      );
+    }
 
     const isPayloadSecure = attributes.every((attr: any) => {
       const labelIsEncrypted = ENCRYPTED_PAYLOAD_REGEX.test(attr.label);
