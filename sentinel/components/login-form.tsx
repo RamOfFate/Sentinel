@@ -44,9 +44,8 @@ export function LoginForm() {
         redirect: false,
       });
 
-      if (result?.error) {
+      if (!result?.ok || result.error) {
         setError("Credentials not recognized");
-        setLoading(false);
         return;
       }
 
